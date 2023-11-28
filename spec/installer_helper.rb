@@ -1,11 +1,11 @@
 module InstallerHelper
 
   def db_username
-    ENV['SPEC_DB_USERNAME'].to_s
+    ENV['MYSQL_USER'].to_s
   end
 
   def db_password
-    ENV['SPEC_DB_PASSWORD'].to_s
+    ENV['MYSQL_PASSWORD'].to_s
   end
 
   def expected_output(text)
@@ -78,15 +78,15 @@ module InstallerHelper
     expected_output('What database do you want use?')
     expected_output('‣ MySQL')
 
-    go_down
-    expected_output('‣ PostgreSQL')
+    # go_down
+    # expected_output('‣ PostgreSQL')
     select_choice
 
     expected_output('Database:')
-    write('test')
+    write(ENV.fetch('MYSQL_DATABASE', 'test'))
 
     expected_output('Host: (localhost)')
-    write('')
+    write(ENV['DB_HOST'].to_s)
 
     expected_output('Username:')
     write(db_username)
@@ -94,10 +94,10 @@ module InstallerHelper
     expected_output('Password:')
     write(db_password)
 
-    expected_output('Encoding: (utf8)')
+    expected_output('Encoding: (utf8mb4)')
     write('')
 
-    expected_output('Port: (5432)')
+    expected_output('Port: (3306)')
     write('')
 
     expected_output('Creating email configuration')
@@ -143,17 +143,17 @@ module InstallerHelper
   end
 
   def expected_successful_installation_or_upgrade(db_creating: false, after_create: nil)
-    expected_output_in('--> Bundle install', 50)
-    expected_output_in('--> Database creating', 50) if db_creating
-    after_create && after_create.call
-    expected_output_in('--> Database migrating', 50)
-    expected_output_in('--> Plugins migration', 50)
-    expected_output_in('--> Generating secret token', 50)
+    expected_output_in('--> Bundle install', 900)
+    expected_output_in('--> Database creating', 900) if db_creating
+    after_create&.call
+    expected_output_in('--> Database migrating', 900)
+    expected_output_in('--> Plugins migration', 900)
+    expected_output_in('--> Generating secret token', 900)
 
-    expected_output('Cleaning root ... OK')
-    expected_output('Moving redmine to target directory ... OK')
-    expected_output('Cleanning up ... OK')
-    expected_output('Moving installer log ... OK')
+    expected_output_in('Cleaning root ... OK', 900)
+    expected_output_in('Moving redmine to target directory ... OK', 900)
+    expected_output_in('Cleanning up ... OK', 900)
+    expected_output_in('Moving installer log ... OK', 900)
   end
 
   def expected_successful_installation(**options)
@@ -173,7 +173,7 @@ module InstallerHelper
 
   def expected_redmine_version(version)
     Dir.chdir(@redmine_root) do
-      out = `rails runner "puts Redmine::VERSION.to_s"`
+      out = `bundle exec rails r -e production 'puts Redmine::VERSION.to_s'`
       expect($?.success?).to be_truthy
       expect(out).to include(version)
     end
@@ -181,7 +181,7 @@ module InstallerHelper
 
   def expected_email_configuration
     Dir.chdir(@redmine_root) do
-      configuration = YAML.load_file('config/configuration.yml')['default']['email_delivery']
+      configuration = YAML.load_file('config/configuration.yml', aliases: true)['default']['email_delivery']
       smtp_settings = configuration['smtp_settings']
 
       expect(configuration['delivery_method']).to eq(:smtp)

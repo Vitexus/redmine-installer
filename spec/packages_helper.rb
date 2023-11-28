@@ -12,6 +12,10 @@ module PackagesHelper
     File.join(packages_dir, 'redmine-3.4.5-rys.zip')
   end
 
+  def package_v503
+    File.join(packages_dir, 'redmine-5.0.3.zip')
+  end
+
   def package_someting_else
     File.join(packages_dir, 'something-else.zip')
   end

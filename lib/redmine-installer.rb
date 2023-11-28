@@ -32,7 +32,7 @@ module RedmineInstaller
   autoload :Easycheck,     'redmine-installer/easycheck'
 
   # Settings
-  MIN_SUPPORTED_RUBY = '2.3.0'
+  MIN_SUPPORTED_RUBY = '3.1.2'
 
   def self.logger
     @logger ||= RedmineInstaller::Logger.new

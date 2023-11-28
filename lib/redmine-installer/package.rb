@@ -86,23 +86,23 @@ module RedmineInstaller
 
       def valid_url?(string)
         uri = URI.parse(string)
-        ['http', 'https'].include?(uri.scheme)
+        %w[http https].include?(uri.scheme)
       rescue URI::BadURIError, URI::InvalidURIError
         false
       end
 
       def download_redmine_version(version)
-        url = "http://www.redmine.org/releases/redmine-#{version}.zip"
+        url = "https://www.redmine.org/releases/redmine-#{version}.zip"
         download_from_url(url)
       end
 
       def download_from_url(url)
         uri = URI.parse(url)
 
-        @temp_file = Tempfile.new(['redmine', '.zip'])
+        @temp_file = Tempfile.new(%w[redmine .zip])
         @temp_file.binmode
 
-        Net::HTTP.start(uri.host, uri.port) do |http|
+        Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
           head = http.request_head(uri)
 
           unless head.is_a?(Net::HTTPSuccess)

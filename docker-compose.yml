@@ -1,0 +1,26 @@
+services:
+  db:
+    image: percona:8
+    ports:
+      - "3306"
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: root
+      MYSQL_DATABASE: easy
+      MYSQL_PASSWORD: easy
+      MYSQL_USER: easy
+  redmine_installer:
+    build:
+      context: .
+    environment:
+      DB_HOST: db
+      MYSQL_PASSWORD: easy
+      MYSQL_USER: easy
+      MYSQL_DATABASE: easy
+    volumes:
+      - ./:/gem
+    working_dir: /gem
+    depends_on:
+      - db
+    command: ["/bin/bash", "-l", "-c", "bundle install && bundle exec rspec"]

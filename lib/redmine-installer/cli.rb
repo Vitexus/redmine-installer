@@ -17,7 +17,7 @@ module RedmineInstaller
       program :version, RedmineInstaller::VERSION
       program :description, 'Easy way how install/upgrade redmine or plugin.'
 
-      global_option('-d', '--debug', 'Logging message to stdout'){ $DEBUG = true }
+      global_option('-d', '--debug', 'Logging message to stdout') { $DEBUG = true }
       global_option('-s', '--silent', 'Be less version in output') { $SILENT_MODE = true }
       global_option('-e', '--env', 'For backward compatibility. Production is now always use.')
       global_option('--run-easycheck', 'Run easycheck.sh from https://github.com/easyredmine/easy_server_requirements_check') do
@@ -26,6 +26,27 @@ module RedmineInstaller
 
       default_command :help
 
+      # --- Environment checker -----------------------------------------------
+      # This command is very specify to Easy Redmine
+      command :env_check do |c|
+        c.syntax = 'env_check'
+        c.description = <<~DESC
+          Check current environment if it meet requirements for Easy Redmine / Easy Project.
+
+          See: https://www.easyredmine.com/documentation-of-easy-redmine/article/hardware-and-software-requirements-for-the-server-solution
+        DESC
+        c.action do |_args|
+          task = RedmineInstaller::Task.new
+          RedmineInstaller::Environment.new(task).check
+          puts task.pastel.green "OK"
+        rescue StandardError => e
+          puts task.pastel.red e.message
+
+          puts "\n\nCheck: https://www.easyredmine.com/documentation-of-easy-redmine/article/hardware-and-software-requirements-for-the-server-solution#Software%20requirements for more info."
+        end
+      end
+
+      alias_command :check, :env_check
 
       # --- Install -----------------------------------------------------------
       command :install do |c|
@@ -48,11 +69,10 @@ module RedmineInstaller
         c.action do |args, options|
           options.default(enable_user_root: false)
 
-          RedmineInstaller::Install.new(args[0], args[1], options.__hash__).run
+          RedmineInstaller::Install.new(args[0], args[1], **options.__hash__).run
         end
       end
       alias_command :i, :install
-
 
       # --- Upgrade -----------------------------------------------------------
       command :upgrade do |c|
@@ -77,11 +97,10 @@ module RedmineInstaller
         c.action do |args, options|
           options.default(enable_user_root: false, copy_files_with_symlink: false)
 
-          RedmineInstaller::Upgrade.new(args[0], args[1], options.__hash__).run
+          RedmineInstaller::Upgrade.new(args[0], args[1], **options.__hash__).run
         end
       end
       alias_command :u, :upgrade
-
 
       # --- Verify log --------------------------------------------------------
       command :'verify-log' do |c|
@@ -96,7 +115,6 @@ module RedmineInstaller
         end
       end
 
-
       # --- Backup ------------------------------------------------------------
       command :backup do |c|
         c.syntax = 'backup [REDMINE_ROOT]'
@@ -105,12 +123,15 @@ module RedmineInstaller
         c.example 'Backup',
                   'redmine backup /srv/redmine'
 
-        c.action do |args, _|
+        c.option '--enable-user-root', 'Skip root as root validation' # just for consistency
+
+        c.action do |args, options|
+          options.default(enable_user_root: false)
+
           RedmineInstaller::Backup.new(args[0]).run
         end
       end
       alias_command :b, :backup
-
 
       # --- Restore db --------------------------------------------------------
       command :'restore-db' do |c|
@@ -129,7 +150,6 @@ module RedmineInstaller
         end
       end
 
-
       run!
     end
 
@@ -137,7 +157,7 @@ module RedmineInstaller
     def parse_keep_options(values)
       proxy_options = Commander::Runner.instance.active_command.proxy_options
 
-      saved = proxy_options.find{|switch, _| switch == :keep }
+      saved = proxy_options.find { |switch, _| switch == :keep }
       if saved
         saved[1].concat(values)
       else

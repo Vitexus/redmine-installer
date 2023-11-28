@@ -21,7 +21,7 @@ module RedmineInstaller
         error "Database configuration files does not exist on #{redmine.root}."
       end
 
-      definitions = YAML.load_file(redmine.database_yml_path)
+      definitions = YAML.load_file(redmine.database_yml_path, aliases: true)
       definition = definitions['production']
 
       unless definition.is_a?(Hash)
@@ -60,7 +60,7 @@ module RedmineInstaller
         @host = prompt.ask('Host:', default: 'localhost', required: true)
         @username = prompt.ask('Username:', default: '')
         @password = prompt.mask('Password:', default: '')
-        @encoding = prompt.ask('Encoding:', default: 'utf8', required: true)
+        @encoding = prompt.ask('Encoding:', default: 'utf8mb4', required: true)
         @port = prompt.ask('Port:', default: default_port, convert: lambda(&:to_i), required: true)
       end
 

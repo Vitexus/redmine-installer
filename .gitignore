@@ -1,11 +1,11 @@
 /.gemtags
 /.tags
+/.idea
 *.gem
 *.rbc
 .bundle
 .config
 .yardoc
-Gemfile.lock
 InstalledFiles
 _yardoc
 coverage
@@ -27,4 +27,4 @@ test/*
 /redmine-installer-err
 /redmine-installer-out
 /redmine
-/gems.locked
+/vendor/*

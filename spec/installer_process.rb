@@ -39,7 +39,7 @@ class InstallerProcess
   end
 
   def run
-    Bundler.with_clean_env {
+    Bundler.with_unbundled_env {
       start
       yield
     }
@@ -67,28 +67,28 @@ class InstallerProcess
     # @process.io.stdin.write_nonblock(text + "\n")
   end
 
-  def get(*args)
-    @last_get_return = _get(*args)
+  def get(text, **args)
+    @last_get_return = _get(text, **args)
   end
 
   private
 
-    # max_wait in s
-    def _get(text, max_wait: 10)
-      wait_to = Time.now + max_wait
-      while Time.now < wait_to
-        @buffer << @stdout.read
-        index = @buffer.rindex(text)
+  # max_wait in s
+  def _get(text, max_wait: 180)
+    wait_to = Time.now + max_wait
+    while Time.now < wait_to
+      @buffer << @stdout.read
+      index = @buffer.rindex(text)
 
-        if index
-          break
-          # return @buffer.slice!(0, index+text.size)
-        else
-          sleep 0.5
-        end
+      if index
+        break
+        # return @buffer.slice!(0, index+text.size)
+      else
+        sleep 0.5
       end
-
-      @buffer
     end
+
+    @buffer
+  end
 
 end

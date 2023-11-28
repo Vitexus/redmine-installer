@@ -1,48 +1,46 @@
 # Redmine installer
 
-Easy way hot to install/upgrade Redmine, EasyRedmine or EasyProject.
+Easy way hot to install/upgrade Redmine, Easy Redmine or Easy Project.
 
 Please do not run installer on background. It may happen that process will be paused by some event. For example database may require enter password during backuping database.
 
+> ⚠️ Current version support only **ruby 3.1.2**, **Percona 8** as DB server and **redmine 5.0.3+**
+
+Version **v3.x** is designed primarily for work with Easy Redmine / Easy Project **v12.x**.
+
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```
-gem 'redmine-installer'
-```
-
-And then execute:
-
-```
-$ bundle
+Install tool into your server environment by:
+```bash
+gem install redmine-installer
 ```
 
-Or install it yourself as:
-
-```
-$ gem install redmine-installer
-```
-
+> ⚠️ Version `v3.0.0` and higher require ruby 3.1.2 and its designed for Easy Redmine / Easy Project v12 and Redmine 5.0.3+ respectively.
 ## Examples
 
 To display global documentation for installer.
 
-```
+```bash
 redmine help
 ```
 
 You can also check more detailed documentation for each command.
 
-```
+```bash
 redmine help [COMMAND]
+```
+
+### Environment checker
+Check your server environment if it meets our requirements for best Easy Redmine experience.
+```bash
+redmine env_check
 ```
 
 ### Installing
 
 Create new project on empty directory. All argument are optional. Directory should be empty because installer delete all content for ensuring correct installation. If directory does not exist, current user must have privileges to create it.
 
-```
+```bash
 redmine help install
 redmine install [PACKAGE PATH or URL] [REDMINE_ROOT] [options]
 ```
@@ -129,3 +127,13 @@ Examples:
 
 Restore database db.dump for redmine in /srv/redmine
 - `redmine restore-db db.dump /srv/redmine`
+
+## Testing
+
+Just run:
+```bash
+docker compose up --build --exit-code-from redmine_installer
+```
+This will build docker image from current code and run tests against _percona8_.
+
+note: Require Docker of course.

@@ -9,7 +9,7 @@ RSpec.describe 'RedmineInstaller backup / restore', order: :defined do
   it 'create backup', :install_first, command: 'backup' do
     # First ensure `project_count` project
     Dir.chdir(@redmine_root) do
-      out = `rails runner "
+      out = `bundle exec rails runner "
         Project.delete_all
 
         #{project_count}.times do |i|
@@ -21,7 +21,6 @@ RSpec.describe 'RedmineInstaller backup / restore', order: :defined do
 
         puts Project.count
       "`
-
       expect($?.success?).to be_truthy
       expect(out.to_i).to eq(project_count)
     end
@@ -40,24 +39,23 @@ RSpec.describe 'RedmineInstaller backup / restore', order: :defined do
 
     # Ensure 0 project (database is shared with all tests)
     Dir.chdir(@redmine_root) do
-      out = `rails runner "
+      out = `bundle exec rails runner "
         Project.delete_all
         puts Project.count
       "`
-
       expect($?.success?).to be_truthy
       expect(out.to_i).to eq(0)
     end
 
     # Save backup (after test end - all backup will be deleted)
     dump = Dir.glob(File.join(@backup_dir, '*', '*')).last
-    expect(dump).to end_with('test.sql')
+    expect(dump).to end_with("#{ENV.fetch('MYSQL_DATABASE', 'test')}.sql")
 
     FileUtils.rm_f(DATABASE_DUMP)
     FileUtils.cp(dump, DATABASE_DUMP)
   end
 
-  it 'restore', command: 'install', args: [package_v345, '--database-dump', DATABASE_DUMP] do
+  it 'restore', command: 'install', args: [package_v503, '--database-dump', DATABASE_DUMP] do
     expected_output('Path to redmine root:')
     write(@redmine_root)
 
@@ -70,10 +68,10 @@ RSpec.describe 'RedmineInstaller backup / restore', order: :defined do
     expected_output('‣ I am aware of this.')
     select_choice
 
-    expected_output_in('Redmine was installed', 500)
+    expected_output_in('Redmine was installed', 240)
 
     Dir.chdir(@redmine_root) do
-      out = `rails runner "puts Project.count"`
+      out = `bundle exec rails runner "puts Project.count"`
       expect(out.to_i).to eq(project_count)
     end
   end

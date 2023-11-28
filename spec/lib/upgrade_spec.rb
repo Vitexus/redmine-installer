@@ -26,7 +26,7 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
     write(@redmine_root)
 
     expected_output('Path to package:')
-    write(package_v345)
+    write(package_v503)
 
     expected_output('Extracting redmine package')
     expected_output('Data backup')
@@ -44,14 +44,14 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
 
     expected_successful_upgrade
 
-    expected_redmine_version('3.4.5')
+    expected_redmine_version('5.0.3')
 
     expect(File.exist?(test_test_file)).to be_falsey
 
     last_backup = Dir.glob(File.join(@backup_dir, '*')).sort.last
     backuped = Dir.glob(File.join(last_backup, '*'))
 
-    expect(backuped.map{|f| File.zero?(f) }).to all(be_falsey)
+    expect(backuped.map { |f| File.zero?(f) }).to all(be_falsey)
   end
 
   it 'upgrade with no backup and files keeping', args: ['--keep', 'test_test'] do
@@ -66,7 +66,7 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
     write(@redmine_root)
 
     wait_for_stdin_buffer
-    write(package_v345)
+    write(package_v503)
 
     wait_for_stdin_buffer
 
@@ -80,21 +80,21 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
 
     expected_successful_upgrade
 
-    expected_redmine_version('3.4.5')
+    expected_redmine_version('5.0.3')
 
     expect(File.exist?(test_test_file)).to be_truthy
   end
 
   it 'copy files with symlink ', args: ['--copy-files-with-symlink'] do
     files_dir = File.join(@redmine_root, 'files')
-    files = (0..10).map {|i| File.join(files_dir, "file_#{i}.txt") }
+    files = (0..10).map { |i| File.join(files_dir, "file_#{i}.txt") }
     FileUtils.touch(files)
 
     wait_for_stdin_buffer
     write(@redmine_root)
 
     wait_for_stdin_buffer
-    write(package_v345)
+    write(package_v503)
 
     wait_for_stdin_buffer
 
@@ -108,13 +108,14 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
 
     expected_successful_upgrade
 
-    expected_redmine_version('3.4.5')
+    expected_redmine_version('5.0.3')
 
     # Not bullet-prof but at least check if files are still there
     expect(Dir.glob(File.join(files_dir, '*.txt')).sort).to eq(files.sort)
   end
 
   it 'upgrade rys and modify bundle/index' do
+    skip 'old version not supporting Ruby >3'
     wait_for_stdin_buffer
     write(@redmine_root)
 
@@ -135,7 +136,7 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
 
     expected_redmine_version('3.4.5')
 
-    index = YAML.load_file(File.join(@redmine_root, '.bundle/plugin/index'))
+    index = YAML.load_file(File.join(@redmine_root, '.bundle/plugin/index'), aliases: true)
 
     load_paths = index['load_paths']['rys-bundler']
     expect(load_paths.size).to eq(1)
@@ -171,7 +172,7 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
       write(@redmine_root)
 
       wait_for_stdin_buffer
-      write(package_v345)
+      write(package_v503)
 
       go_down
       go_down
@@ -183,7 +184,7 @@ RSpec.describe RedmineInstaller::Upgrade, :install_first, command: 'upgrade' do
 
       write(answer)
       expected_successful_upgrade
-      expected_redmine_version('3.4.5')
+      expected_redmine_version('5.0.3')
 
       expect(Dir.exist?(plugin_dir)).to be(result)
     end

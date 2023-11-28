@@ -1,0 +1,10 @@
+name: ci
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: isbang/compose-action@v1.4.1
+        with:
+          up-flags: --build --abort-on-container-exit --exit-code-from redmine_installer

@@ -1,3 +1,5 @@
 module RedmineInstaller
-  VERSION = '2.3.2'
+
+  VERSION = '3.0.3'
+
 end

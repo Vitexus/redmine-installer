@@ -18,7 +18,7 @@ require 'packages_helper'
 RSpec.configure do |config|
   config.default_formatter = 'doc'
   config.color = true
-  config.tty   = true
+  config.tty = true
 
   config.disable_monkey_patching!
 
@@ -30,19 +30,19 @@ RSpec.configure do |config|
 
   config.before(:all, :install_first) do
     @redmine_root = @origin_redmine = Dir.mktmpdir('redmine_root')
-    @process = InstallerProcess.new('install', package_v345, @origin_redmine)
+    @backup_dir = Dir.mktmpdir('backup_dir')
+    @process = InstallerProcess.new('install', package_v503, @origin_redmine, "--enable_user_root")
     @process.run do
       expected_successful_configuration
       expected_successful_installation
 
-      expected_redmine_version('3.4.5')
+      expected_redmine_version('5.0.3')
     end
-    @backup_dir = Dir.mktmpdir('backup_dir')
   end
 
   config.after(:all, :install_first) do
-    FileUtils.remove_entry(@origin_redmine)
-    FileUtils.remove_entry(@backup_dir)
+    FileUtils.remove_entry(@origin_redmine, true)
+    FileUtils.remove_entry(@backup_dir, true)
   end
 
   config.before(:each, :install_first) do

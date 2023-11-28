@@ -10,3 +10,4 @@ gemspec
 #     gem 'childprocess'
 #   end
 # end
+gem "pry", group: [:development, :test]

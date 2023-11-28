@@ -66,7 +66,7 @@ module RedmineInstaller
         config_file = File.join(@redmine.root, CONFIG_DIR, 'redmine-installer.yaml')
 
         if File.exist?(config_file)
-          YAML.load_file(config_file)
+          YAML.load_file(config_file, aliases: true)
         else
           {}
         end

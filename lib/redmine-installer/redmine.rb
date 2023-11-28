@@ -1,4 +1,5 @@
 require 'find'
+require 'io/console'
 
 module RedmineInstaller
   class Redmine < TaskModule
@@ -279,7 +280,17 @@ module RedmineInstaller
           next if entry == '.' || entry == '..'
           next if entry == FILES_DIR && task.options.copy_files_with_symlink
 
-          FileUtils.remove_entry_secure(entry)
+          begin
+            FileUtils.remove_entry_secure(entry)
+          rescue
+            if task.options.copy_files_with_symlink
+              print_title('Cannot automatically empty ' + root + '. Please manually empty this directory (except for ' + root + '/' + FILES_DIR + ') and then hit any key to continue...')
+            else
+              print_title('Cannot automatically empty ' + root + '. Please manually empty this directory and then hit any key to continue...')
+            end
+            STDIN.getch
+            break
+          end
         end
       end
 
@@ -294,7 +305,7 @@ module RedmineInstaller
         bundle_index = File.join(Dir.pwd, '.bundle/plugin/index')
 
         if File.exist?(bundle_index)
-          index = YAML.load_file(bundle_index)
+          index = YAML.load_file(bundle_index, aliases: true)
 
           # { load_paths: { PLUGIN_NAME: *PATHS } }
           #

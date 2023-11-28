@@ -6,7 +6,7 @@ module RedmineInstaller
     PROFILES_FILE = File.join(Dir.home, '.redmine-installer-profiles.yml')
 
     def self.get!(profile_id)
-      data = YAML.load_file(PROFILES_FILE) rescue nil
+      data = YAML.load_file(PROFILES_FILE, aliases: true) rescue nil
 
       if data.is_a?(Hash) && data.has_key?(profile_id)
         Profile.new(profile_id, data[profile_id])
@@ -25,7 +25,7 @@ module RedmineInstaller
     def save
       FileUtils.touch(PROFILES_FILE)
 
-      all_data = YAML.load_file(PROFILES_FILE)
+      all_data = YAML.load_file(PROFILES_FILE, aliases: true)
       all_data = {} unless all_data.is_a?(Hash)
 
       @id ||= all_data.keys.last.to_i + 1
