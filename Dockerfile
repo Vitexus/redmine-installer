@@ -1,4 +1,4 @@
-FROM ruby:3.1.2-bullseye
+FROM ruby:3.1.4-bullseye
 LABEL org.opencontainers.image.authors="support@easysoftware.com"
 RUN apt-get update && apt-get -y install lsb-release wget curl vim
 RUN wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb -O percona-release_latest_all.deb &&\

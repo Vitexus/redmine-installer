@@ -1,5 +1,11 @@
 # Redmine installer
 
+> [!WARNING]
+> :exclamation: THIS TOOL IS NO LONGER MAINTAINED.
+> Easy Software Ltd. has stopped maintaining this tool. We are switching to dockerized installation and upgrade process. Please use our docker images for installation.
+>
+> Feel free to contact our support if you have any questions.
+
 Easy way hot to install/upgrade Redmine, Easy Redmine or Easy Project.
 
 Please do not run installer on background. It may happen that process will be paused by some event. For example database may require enter password during backuping database.
